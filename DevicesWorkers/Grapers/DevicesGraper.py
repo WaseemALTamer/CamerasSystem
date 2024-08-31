@@ -120,7 +120,7 @@ class AvailableDevices:
         return available_devices
 
 
-    def GrapCaptureDeviecesHashffmpeg() -> dict[int:dict[str]]: # this function is going to return hash map with the index as a key with the data of 
+    def GrapCaptureDeviecesListffmpeg() -> list[str]: # this function is going to return hash map with the index as a key with the data of 
                                                                  # camera, this function is mainly writen for pure profermence so we not have to worry
                                                                  # about speed cuz we are using a hash map
 
@@ -130,19 +130,12 @@ class AvailableDevices:
             check the previous functions to know how it works """
 
 
-        CaptureDevieces = AvailableDevices.GrapDevicesNames()[0]
+        CaptureDevieces:list[str] = AvailableDevices.GrapDevicesNames()[0]
         CaptureDeviecesNum:int = len(CaptureDevieces) # this line will capture all the video and audio input devices extract the
                                                       # the capture devices number
 
-        AvalibleDevicesIndex:dict[int:dict[str]] ={}  # this will simplay create a list and will write the numbers of the
-                                                      # capture devices one by one
-
-        for i in range(CaptureDeviecesNum):
-            AvalibleDevicesIndex[i] = {
-                "DeviceName" : CaptureDevieces[i]
-            }
 
 
         # this function may not work on different systems this is mainly is used for proformance to extract how many video capture devices we have
         # and the names of the capture devices the names may not be in the correct index so if that the case we need to fix that later on somehow
-        return AvalibleDevicesIndex
+        return CaptureDevieces

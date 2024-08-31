@@ -1,12 +1,7 @@
-class Device:
-    def turn_on(self):
-        print("Device is now on.")
+from Controller import Controller
 
-class CameraDevice(Device):
-    def take_picture(self):
-        print("Picture taken.")
+x = Controller()
 
-
-
-device = Device()
-device.take_picture()  # This will raise an error
+while True:
+    input("Press enter to detect and run cameras: ")
+    x.initCaptureDevice()
