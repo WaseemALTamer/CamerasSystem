@@ -38,7 +38,7 @@ class AccessSounds:
         self.WritingData:bool = False # this var will help us to know when the data is being written so we dont try to use the data while it is being written
                                       # this could cuz errors as if data is being copyed while being written the data that is copyed is most like currupted
         
-        self.DataOutput:list[np.int32]# here we make the var for storing the chunk temprearly so we can use it later 
+        self.DataOutput:list[np.int32] = ... # here we make the var for storing the chunk temprearly so we can use it later 
 
     def GrapSound(self)->list[np.int32]: # this data type is a formate that we use to the chunk it is a list with integers which represenetd by 32 bit values  in memory
         if not self.GraperContinuouslyState: #we should not be able to capture the data twice at the same time if you want to do that just capture it using the GrapSoundContinuously function

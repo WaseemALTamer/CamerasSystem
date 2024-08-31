@@ -18,10 +18,7 @@ class AccessImages():
         self.WritingData:bool = False # this var will help us to know when the data is being written so we dont try to use the data while it is being written
                                       # this could cuz errors as if data is being copyed while being written the data that is copyed is most like currupted
 
-        self.DataOutput:list[np.uint8] # here we make the var for storing the chunk temprearly so we can use it later
-
-        self.Disconnected:bool = False # this bool will tell us if the Camera is is connected so we can detect i tand delete it
-                                       # or try to start it again 
+        self.DataOutput:list[np.uint8] = ... # here we make the var for storing the chunk temprearly so we can use it later
 
 
     def StartGraping(self):
@@ -37,7 +34,6 @@ class AccessImages():
             ret, frame = self.cap.read()
             if not ret:
                 print("Failed to grab a frame. Camera may be disconnected.")
-                self.Disconnected = True
                 self.GraperContinuouslyState = False  # Exit the loop
                 break
 
