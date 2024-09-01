@@ -11,6 +11,12 @@ import cv2
 class AccessImages():
     def __init__(self, input_device_index) -> None:
         self.cap:cv2.VideoCapture = cv2.VideoCapture(input_device_index) # we try to open the camera stright away so we can capture the photage
+
+        
+        self.Width, self.Height = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) # we also need the resloution of the Device
+                                                                                                                            # so we grap from the cv2 libray
+
+
         if not self.cap.isOpened(): # we check if the camera is opened if it did not then we have a issue and raise and error
             raise "Cannot open camera The camera either does not exist or other device is using it" #this might need to be changed later on
 
@@ -18,7 +24,7 @@ class AccessImages():
         self.WritingData:bool = False # this var will help us to know when the data is being written so we dont try to use the data while it is being written
                                       # this could cuz errors as if data is being copyed while being written the data that is copyed is most like currupted
 
-        self.DataOutput:list[np.uint8] = ... # here we make the var for storing the chunk temprearly so we can use it later
+        self.DataOutput:list[np.uint8] = None # here we make the var for storing the chunk temprearly so we can use it later
 
 
     def StartGraping(self):

@@ -1,2 +1,1 @@
-from .Grapers import *
-from .Controller import *
+from .Controller import Controller
