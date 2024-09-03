@@ -6,8 +6,8 @@ class GUI:
         self.root = tk.Tk() # sets up the window
         self.root.title("Camera GUI") # title of the window
 
-        self.windowwidth:int = 500 # width of the window
-        self.windowheight:int = 400 # height of the window
+        self.windowwidth:int = 1920 # width of the window
+        self.windowheight:int = 1080 # height of the window
 
         self.root.geometry(f'{self.windowwidth}x{self.windowheight}') # sets the height and width of the window according to the values of the ints before this line of code
 
