@@ -1,47 +1,95 @@
+import datetime
 import tkinter as tk
-from PIL import ImageTk, Image
-
-class GUI:
-    def setupwindow(self):
-        self.root = tk.Tk() # sets up the window
-        self.root.title("Camera GUI") # title of the window
-
-        self.windowwidth:int = 1920 # width of the window
-        self.windowheight:int = 1080 # height of the window
-
-        self.root.geometry(f'{self.windowwidth}x{self.windowheight}') # sets the height and width of the window according to the values of the ints before this line of code
-
-    def on_resize(self): # Here I am trying to make it so that the size of the images change when I change the size of the window but I am kinda stuck ngl :/
-        self.windowwidth = self.root.winfo_width()
-        self.windowheight = self.root.winfo_height()
-        print(self.windowheight, self.windowwidth)
+from tkinter import filedialog
+from tkVideoPlayer import TkinterVideo
 
 
-    def openimages(self):
-        self.photos:list = [] # stores the photos so that they don't get garbage collected
-        for i in range(1,5):
-            imgopen = Image.open(f"Client\images\cam{i}.jpg") # goes through all of the images and opens them
-
-            img_resize = imgopen.resize((self.windowwidth//5,self.windowheight//5)) # resizes the image
-
-            tk_img = ImageTk.PhotoImage(img_resize)
-
-            self.photos.append(tk_img) # adds all of the photos that are read into the self.photos list
-
-            label = tk.Label(self.root, image=tk_img) # setting up the photos to be displayed
-            label.place(x=(i - 0.8) * (self.windowwidth // 4.5), y=0) # seperate all of the photos
-            
-        self.root.mainloop()
+def update_duration(event):
+    """ updates the duration after finding the duration """
+    duration = vid_player.video_info()["duration"]
+    end_time["text"] = str(datetime.timedelta(seconds=duration))
+    progress_slider["to"] = duration
 
 
+def update_scale(event):
+    """ updates the scale value """
+    progress_value.set(vid_player.current_duration())
 
-    def buttonfunctions(): # I am gonna be adding buttons to the GUI, and in this function, there are going to be button functions
-        print("WIP")
+
+def load_video():
+    """ loads the video """
+    file_path = filedialog.askopenfilename()
+
+    if file_path:
+        vid_player.load(file_path)
+
+        progress_slider.config(to=0, from_=0)
+        play_pause_btn["text"] = "Play"
+        progress_value.set(0)
 
 
-def main(): # function used to test all of the functions in the GUI class
-    gui = GUI()
-    gui.setupwindow()
-    gui.openimages()
+def seek(value):
+    """ used to seek a specific timeframe """
+    vid_player.seek(int(value))
 
-main()
+
+def skip(value: int):
+    """ skip seconds """
+    vid_player.seek(int(progress_slider.get())+value)
+    progress_value.set(progress_slider.get() + value)
+
+
+def play_pause():
+    """ pauses and plays """
+    if vid_player.is_paused():
+        vid_player.play()
+        play_pause_btn["text"] = "Pause"
+
+    else:
+        vid_player.pause()
+        play_pause_btn["text"] = "Play"
+
+
+def video_ended(event):
+    """ handle video ended """
+    progress_slider.set(progress_slider["to"])
+    play_pause_btn["text"] = "Play"
+    progress_slider.set(0)
+
+
+root = tk.Tk()
+root.title("Tkinter media")
+
+load_btn = tk.Button(root, text="Load", command=load_video)
+load_btn.pack()
+
+vid_player = TkinterVideo(scaled=True, master=root, consistant_frame_rate=True)
+vid_player.Frame_Rate_Scaler = 2
+vid_player.pack(expand=True, fill="both")
+
+play_pause_btn = tk.Button(root, text="Play", command=play_pause)
+play_pause_btn.pack()
+
+skip_plus_5sec = tk.Button(root, text="Skip -5 sec", command=lambda: skip(-5))
+skip_plus_5sec.pack(side="left")
+
+start_time = tk.Label(root, text=str(datetime.timedelta(seconds=0)))
+start_time.pack(side="left")
+
+progress_value = tk.IntVar(root)
+
+progress_slider = tk.Scale(root, variable=progress_value, from_=0, to=0, orient="horizontal", command=seek)
+# progress_slider.bind("<ButtonRelease-1>", seek)
+progress_slider.pack(side="left", fill="x", expand=True)
+
+end_time = tk.Label(root, text=str(datetime.timedelta(seconds=0)))
+end_time.pack(side="left")
+
+vid_player.bind("<<Duration>>", update_duration)
+vid_player.bind("<<SecondChanged>>", update_scale)
+vid_player.bind("<<Ended>>", video_ended )
+
+skip_plus_5sec = tk.Button(root, text="Skip +5 sec", command=lambda: skip(5))
+skip_plus_5sec.pack(side="left")
+
+root.mainloop()
