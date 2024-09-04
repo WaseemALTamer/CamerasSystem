@@ -1,24 +1,29 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 
+
+
+
 class GUI:
     def setupwindow(self):
         self.root = tk.Tk() # sets up the window
         self.root.title("Camera GUI") # title of the window
 
-        self.windowwidth:int = 1920 # width of the window
-        self.windowheight:int = 1080 # height of the window
+        self.windowwidth:int = 1280 # width of the window
+        self.windowheight:int = 720 # height of the window
 
         self.root.geometry(f'{self.windowwidth}x{self.windowheight}') # sets the height and width of the window according to the values of the ints before this line of code
 
-    def on_resize(self): # Here I am trying to make it so that the size of the images change when I change the size of the window but I am kinda stuck ngl :/
-        self.windowwidth = self.root.winfo_width()
-        self.windowheight = self.root.winfo_height()
-        print(self.windowheight, self.windowwidth)
+    def on_resize(self, event=None): # Here I am trying to make it so that the size of the images change when I change the size of the window but I am kinda stuck ngl :/
+        self.windowwidth = event.width
+        self.windowheight = event.height
+        print(self.windowwidth, self.windowheight)
 
 
     def openimages(self):
+
         self.photos:list = [] # stores the photos so that they don't get garbage collected
+
         for i in range(1,5):
             imgopen = Image.open(f"Client\images\cam{i}.jpg") # goes through all of the images and opens them
 
@@ -30,8 +35,8 @@ class GUI:
 
             label = tk.Label(self.root, image=tk_img) # setting up the photos to be displayed
             label.place(x=(i - 0.8) * (self.windowwidth // 4.5), y=0) # seperate all of the photos
-            
-        self.root.mainloop()
+
+        
 
 
 
@@ -42,6 +47,10 @@ class GUI:
 def main(): # function used to test all of the functions in the GUI class
     gui = GUI()
     gui.setupwindow()
-    gui.openimages()
+
+    gui.root.bind("<Configure>", gui.on_resize)
+
+    gui.root.mainloop()
+    #gui.openimages()
 
 main()
