@@ -64,7 +64,7 @@ load_btn = tk.Button(root, text="Load", command=load_video)
 load_btn.pack()
 
 vid_player = TkinterVideo(scaled=True, master=root, consistant_frame_rate=True)
-vid_player.Frame_Rate_Scaler = 2
+vid_player.Frame_Rate_Scaler = 1
 vid_player.pack(expand=True, fill="both")
 
 play_pause_btn = tk.Button(root, text="Play", command=play_pause)

@@ -1,56 +1,101 @@
 import tkinter as tk
 from PIL import ImageTk, Image
+import threading
+
+
 
 
 
 
 class GUI:
-    def setupwindow(self):
+    def __init__(self) -> None:
+
         self.root = tk.Tk() # sets up the window
         self.root.title("Camera GUI") # title of the window
-
-        self.windowwidth:int = 1280 # width of the window
-        self.windowheight:int = 720 # height of the window
-
-        self.root.geometry(f'{self.windowwidth}x{self.windowheight}') # sets the height and width of the window according to the values of the ints before this line of code
-
-    def on_resize(self, event=None): # Here I am trying to make it so that the size of the images change when I change the size of the window but I am kinda stuck ngl :/
-        self.windowwidth = event.width
-        self.windowheight = event.height
-        print(self.windowwidth, self.windowheight)
+        self.Width, self.Height = 1280, 720
+        self.root.geometry(f'{self.Width}x{self.Height}')
 
 
-    def openimages(self):
+        #create the MainCanvas
+        self.MainCanvas = tk.Canvas(self.root, 
+                                    background="#1F1F1F",
+                                    highlightthickness=0
+                                    )
+        self.MainCanvas.place(relheight=1, relwidth=1 ,relx=0, rely=0)# Place The Canvas
 
-        self.photos:list = [] # stores the photos so that they don't get garbage collected
 
-        for i in range(1,5):
-            imgopen = Image.open(f"Client\images\cam{i}.jpg") # goes through all of the images and opens them
 
-            img_resize = imgopen.resize((self.windowwidth//5,self.windowheight//5)) # resizes the image
+        self.ImageLabels:list[tk.Label] = []
+        self.TempImage = []
+        self.ImagesArray = [] 
 
-            tk_img = ImageTk.PhotoImage(img_resize)
 
-            self.photos.append(tk_img) # adds all of the photos that are read into the self.photos list
+        self._Resizethread = None
+        self.OpenImages()
+        self.PlaceImageLabels()
 
-            label = tk.Label(self.root, image=tk_img) # setting up the photos to be displayed
-            label.place(x=(i - 0.8) * (self.windowwidth // 4.5), y=0) # seperate all of the photos
 
+
+
+
+
+        self.MainCanvas.bind("<Configure>", self.on_resize)
+
+
+
+
+
+
+        
+
+    def on_resize(self, event=None):
+        if (self.Width, self.Height) != (event.width, event.height):
+            self.Width, self.Height = event.width, event.height
+            print(event.width, event.height)
+            self._Resizethread = threading.Thread(target=self.ResizeImage)
+            self._Resizethread.start()
+
+
+
+    def PlaceImageLabels(self):
+        for Index, Object in enumerate(self.ImageLabels):
+            Object.grid(row=Index//3, column=Index%3, padx=5, pady=5)
+
+    def ResizeImage(self):
+        for Index, Object in enumerate(self.ImageLabels):
+            if self._Resizethread != threading.current_thread():
+                return
+            if self.Width <= 5 or self.Height <= 5:
+                return
+            _img = ImageTk.PhotoImage(self.ImagesArray[Index].resize((self.Width//5, self.Height//5)))
+            Object.config(image=_img)
+            Object.Image = _img
+        self.PlaceImageLabels()
+
+
+
+    def OpenImages(self):
+
+        for Index in range(0,20):
+            _img = Image.open(f"Image.jpg")
+
+
+            tk_img = ImageTk.PhotoImage(_img.resize((self.Width//5, self.Height//5)))
+            label = tk.Label(self.MainCanvas, image=tk_img)
+            label.Image = tk_img
+            self.ImageLabels.append(label)
+            self.ImagesArray.append(_img)
+            
+        
+        print(self.ImageLabels)
         
 
 
 
-    def buttonfunctions(): # I am gonna be adding buttons to the GUI, and in this function, there are going to be button functions
-        print("WIP")
 
 
-def main(): # function used to test all of the functions in the GUI class
+
+
+if __name__ == "__main__":
     gui = GUI()
-    gui.setupwindow()
-
-    gui.root.bind("<Configure>", gui.on_resize)
-
     gui.root.mainloop()
-    #gui.openimages()
-
-main()
