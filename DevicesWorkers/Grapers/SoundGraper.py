@@ -16,8 +16,8 @@ class AccessSounds:
         self.RATE:int = 44100 # this is the rate the aduio will be captured as so make sure it is lower than what the device can capture
         self.Player = pyaudio.PyAudio() #this create the audio device
 
-        #for further understanding on between each value of the Chunk there is a delay which depends on the Chunk/Rate/Channels
-        #formula:
+        # for further understanding on between each value of the Chunk there is a delay which depends on the Chunk/Rate/Channels
+        # formula:
         #          (Total Number Of Sample) / ( (Sample Rate)*(Number Of Chanlles) ) = Total Duration
 
 

@@ -27,7 +27,7 @@ class AvailableDevices:
 
 
         # Run the FFmpeg command to list video and audio devices
-        command:list[str] = ['ffmpeg/bin/ffmpeg.exe', '-list_devices', 'true', '-f', 'dshow', '-i', 'dummy']
+        command:list[str] = ['ffmpeg', '-list_devices', 'true', '-f', 'dshow', '-i', 'dummy']
         
         # Run the command and capture the output
         result:subprocess.CompletedProcess = subprocess.run(command, stderr=subprocess.PIPE, text=True)

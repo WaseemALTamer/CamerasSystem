@@ -7,6 +7,8 @@
 # it into .mp4 or .avi formates
 
 
+import av.container
+import av.stream
 from Grapers import DevicesGraper, ImageGraper, SoundGraper
 from TickSystem import FpsController
 from datetime import datetime
@@ -14,6 +16,7 @@ import numpy as np
 import time
 import cv2
 import os
+import av
 
 
 # this class will be used as the structure class
@@ -32,8 +35,9 @@ class CameraDevice:
 
         self.CurrentRecordingFolder:str = None # this will help us keep track of the name of the file we are writing on
 
-        self.CurrentRecordingFile:cv2.VideoWriter = None # this is a cv2 file that we use to access the file from so we
-                                                         # can write on
+        self.CurrentRecordingFile:av.container = None # this is a cv2 file that we use to access the file from so we
+                                                          # can write on
+        self.CurrentRecordingStream:av.stream.Stream
 
 
         self.Graper.GrapImageContinuouslyOnThread()
@@ -54,7 +58,7 @@ class CameraDevice:
         while self.Graper.WritingData:
             time.sleep(1/120)
         return self.Graper.DataOutput
-    
+
 
 
 
@@ -82,7 +86,7 @@ class AudioDevice:
 
 
 
-class Controller():
+class Controller:
     def __init__(self) -> None:
 
         # we are giong to grap all the input devices we can for starters
@@ -132,9 +136,9 @@ class Controller():
 
 
     def RecordPhotoageForAllCameras(self, Time:int=15, 
-                                    DesiredFps:int=30, 
+                                    DesiredFps:int=30,
                                     Output="FootageOutput", 
-                                    Encoder:str="XVID"):
+                                    Encoder:str="h264"): #Encoders ["hevc", "h264"]
 
         # this function should be able to to access all the cameras
         # and store write the data into a file for every 15 second
@@ -151,9 +155,9 @@ class Controller():
 
 
 
-        Encoder = cv2.VideoWriter_fourcc(*Encoder)  # Codec for the video so we can write the data
-                                                    # in a certain formate with while  not  taking
-                                                    # much space 
+        #Encoder = cv2.VideoWriter_fourcc(*Encoder)  # Codec for the video so we can write the data
+                                                     # in a certain formate with while  not  taking
+                                                     # much space 
 
         while self.RecorderState:
 
@@ -197,7 +201,12 @@ class Controller():
 
 
                 # thie line below is VideoWriter object which allowes us to write the file on the go
-                Device.CurrentRecordingFile = cv2.VideoWriter(f'{Device.CurrentRecordingFolder}/Video.avi', Encoder, DesiredFps, Device.Resloution)  
+                #Device.CurrentRecordingFile = cv2.VideoWriter(f'{Device.CurrentRecordingFolder}/Video.avi', Encoder, DesiredFps, Device.Resloution)
+                Device.CurrentRecordingFile = av.open(f'{Device.CurrentRecordingFolder}/Video.mp4', 'w')
+                Device.CurrentRecordingStream = Device.CurrentRecordingFile.add_stream(Encoder, rate=DesiredFps)
+                Device.CurrentRecordingStream.width = Device.Graper.Width
+                Device.CurrentRecordingStream.height = Device.Graper.Height
+                Device.CurrentRecordingStream.pix_fmt = 'yuv420p'
 
 
 
@@ -216,7 +225,12 @@ class Controller():
                             Device.Recording = False # change the bool the false to inform
                                                      # other threads
 
-                            Device.CurrentRecordingFile.release()# release the file so it is not
+                        for packet in Device.CurrentRecordingStream.encode(None):   # this flushes the packtest before closing the
+                                                                                # the file
+                            Device.CurrentRecordingFile.mux(packet)
+
+
+                            Device.CurrentRecordingFile.close()  # release the file so it is not
                                                                  # corrupted and view  the  data
                                                                  # later on
                             Device.CurrentRecordingFile = None
@@ -229,13 +243,15 @@ class Controller():
 
                     if Data is not None: # if the data is there then we can write the data
                                          # in the file we created
-                        Device.CurrentRecordingFile.write(Data)
+                        frame_av = av.VideoFrame.from_ndarray(Data, format='bgr24')
+                        for packet in Device.CurrentRecordingStream.encode(frame_av):
+                            Device.CurrentRecordingFile.mux(packet)
 
-                
 
 
 
-                #WhileLoopController.ShowFps()
+
+                WhileLoopController.ShowFps()
                 WhileLoopController.BlockUntilNextFrame() # we block the while loop until the next Frame
                                                           # this works by a tick system and running the
                                                           # other lines of code will effect for how long
@@ -243,11 +259,48 @@ class Controller():
 
             for Device in RunningDevices: # we then loop through the Devices and release them
                                           # so we can view the data
+
+                for packet in Device.CurrentRecordingStream.encode(None): # this flushes the packtest before closing the
+                                                                              # the file
+                    Device.CurrentRecordingFile.mux(packet)
+
                 try:
+
                     Device.Recording = False
-                    Device.CurrentRecordingFile.release()
+                    Device.CurrentRecordingFile.close()
                     Device.CurrentRecordingFile = None
                 except:
                     pass
+
+
+    def Test(self):
+        timer = time.time() + 5
+
+
+        fps = 30
+
+        output = av.open('output.mp4', 'w')
+        stream = output.add_stream('h264', rate=fps)
+        stream.width = 620
+        stream.height = 480
+        stream.pix_fmt = 'yuv420p'
+
+        Device = self.CaptureDevices[0]
+
+
+        Blocker = FpsController(DesiredFps=fps)
+        while timer >= time.time():
+
+            if Device.DeviceOutput is not None:
+                frame_av = av.VideoFrame.from_ndarray(Device.DeviceOutput, format='bgr24')
+    
+                for packet in stream.encode(frame_av):
+                    output.mux(packet)
+
+            Blocker.ShowFps()
+            Blocker.BlockUntilNextFrame()
+
+
+        output.close()
 
 
