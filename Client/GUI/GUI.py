@@ -43,7 +43,7 @@ class GUI:
 
         # Buttons
         self.turn_off = tk.Button(self.MainCanvas, text="EXIT", command=self.root.quit, width=50, height=1)
-        self.check_cameras = tk.Button(self.MainCanvas, text="Check cameras", command=self.buttfunk.banana, width=50, height=1)
+        self.check_cameras = tk.Button(self.MainCanvas, text="Check cameras", command=self.buttfunk.GrabDevices, width=50, height=1)
 
     def on_resize(self, event=None):
         if (self.Width, self.Height) != (event.width, event.height):
