@@ -4,7 +4,7 @@ import threading
 from DevicesGraper import AvailableDevices
 
 class button_functions:
-    def banana(self):
+    def GrabDevices(self):
         self.grabcam = AvailableDevices.GrapDevicesNames()
         print(self.grabcam)
 
