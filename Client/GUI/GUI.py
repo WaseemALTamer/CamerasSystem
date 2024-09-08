@@ -1,19 +1,12 @@
-from DevicesGraper import AvailableDevices
 import tkinter as tk
 from PIL import ImageTk, Image
 import threading
-
+from DevicesGraper import AvailableDevices
 
 class button_functions:
-    def __init__(self):
-        #self.grabcam = AvailableDevices.GrapDevicesNames()
-        pass
-
-
-    def grabcam(self):
-        x = AvailableDevices.GrapCaptureDeviecesListffmpeg()
-        print(x)
-        return x
+    def banana(self):
+        self.grabcam = AvailableDevices.GrapDevicesNames()
+        print(self.grabcam)
 
 class GUI:
     def __init__(self) -> None:
@@ -38,7 +31,7 @@ class GUI:
 
         #set up the button functions
         self.buttfunk = button_functions()
-
+        
 
         # Reads the images and displays them on the screen and also sets them up for them to be resized
         self._Resizethread = None
@@ -50,10 +43,7 @@ class GUI:
 
         # Buttons
         self.turn_off = tk.Button(self.MainCanvas, text="EXIT", command=self.root.quit, width=50, height=1)
-        self.check_cameras = tk.Button(self.MainCanvas, text="Check cameras", width=50, height=1, command=self.buttfunk.grabcam)
-    
-    def test(self):
-        print("your mother")
+        self.check_cameras = tk.Button(self.MainCanvas, text="Check cameras", command=self.buttfunk.banana, width=50, height=1)
 
     def on_resize(self, event=None):
         if (self.Width, self.Height) != (event.width, event.height):
@@ -79,7 +69,7 @@ class GUI:
     def OpenImages(self):
 
         for Index in range(1,5):
-            _img = Image.open(f"Client\images\cam{Index}.jpg")
+            _img = Image.open(f"CamerasSystem-main\Client\images\cam{Index}.jpg")
             tk_img = ImageTk.PhotoImage(_img.resize((self.Width//5, self.Height//5)))
             label = tk.Label(self.MainCanvas, image=tk_img)
             label.Image = tk_img
